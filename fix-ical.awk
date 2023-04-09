@@ -1,6 +1,7 @@
 #!/bin/awk -f
 
 BEGIN {
+    uid_serial = 10000
     processing_vevent = 0
 }
 
@@ -29,12 +30,26 @@ function process_summary(summary_orig, nr,
 
     if ( summary_orig !~ /[0-9]+:[0-9]+ ?[ap]m/ ) return (0)
 
-    # DATA-QUIRK: if line starts with \n (junk), remove it.
+    # DATA-QUIRK: if the value starts with \n (junk), remove it.
     sum = gensub("^(\\\\n)+", "", 1, summary_orig)
+    # DATA-QUIRK: if the value has \n with no time immmediately after
+    # (the test here is really "with no number immediately after"),
+    # then replace the \n with "; ".
+    sum = gensub("\\\\n([^0-9])", "; \\1", "g", sum)
+
+    ###DEBUG
+    ###print "**** summary_orig=" summary_orig
+    ###print "**** sum=" sum
 
     # Split SUMMARY value along embedded \n.
     # Example: 8:45 am - Matins\n10:00 am - Holy Liturgy\nNo Sunday School
-    M = split(sum, b, "\\\\n[0-9]+:[0-9]")
+    M = split(sum, b, "\\\\n")
+
+    # Last element always has a trailing ^M we need to drop.
+    b[M] = substr(b[M], 1, length(b[M])-1)
+
+    ###DEBUG
+    ###printf("****"); for (m = 1; m <= M; m++) printf(" b[" m "]=" b[m] " "); print ""
 
     for (m = 1; m <= M; m++) {
         msum = b[m]
@@ -117,6 +132,8 @@ function process_summary(summary_orig, nr,
                 }
             } else if ( num_dtstarttime && var == "SUMMARY" ) {
                 print var ":" summary[i]
+            } else if ( var == "UID" ) {
+                print var ":" ++uid_serial recval[var]
             } else {
                 print var ":" recval[var]
             }
