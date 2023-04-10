@@ -109,6 +109,17 @@ function process_summary(summary_orig, nr,
     alldayidx = 0
     processing_vevent = 1
 }
+
+processing_vevent {
+    match($0, ":")
+    var = substr($0, 1, RSTART - 1)
+    val = substr($0, RSTART + 1, length($0) - RSTART)
+    recvar[++recidx] = var  # variable name, e.g., "DTSTAMP"
+    recval[var]      = val  # value, e.g., "20230407T194437"
+    recNR[var]       = NR   # save this for error messages
+}
+!processing_vevent  # pass through non-VEVENT lines.
+
 /^END:VEVENT/ {
     # Print the VEVENT record.
 
@@ -143,12 +154,3 @@ function process_summary(summary_orig, nr,
     }
     processing_vevent = 0
 }
-processing_vevent {
-    match($0, ":")
-    var = substr($0, 1, RSTART - 1)
-    val = substr($0, RSTART + 1, length($0) - RSTART)
-    recvar[++recidx] = var  # variable name, e.g., "DTSTAMP"
-    recval[var]      = val  # value, e.g., "20230407T194437"
-    recNR[var]       = NR   # save this for error messages
-}
-!processing_vevent  # pass through non-VEVENT lines.
