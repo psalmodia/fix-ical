@@ -45,9 +45,6 @@ function process_summary(summary_orig, nr,
     # Example: 8:45 am - Matins\n10:00 am - Holy Liturgy\nNo Sunday School
     M = split(sum, b, "\\\\n")
 
-    # Last element always has a trailing ^M we need to drop.
-    b[M] = substr(b[M], 1, length(b[M])-1)
-
     ###DEBUG
     ###printf("****"); for (m = 1; m <= M; m++) printf(" b[" m "]=" b[m] " "); print ""
 
@@ -99,6 +96,11 @@ function process_summary(summary_orig, nr,
     }
     return(M)
 }
+
+# If the line ends in ^M (carriage return), remove it.
+# ("Thanks", Bill Gates, for the unwanted garbage.)
+{ sub(/\r$/, "") }
+
 /^BEGIN:VEVENT/ {
     delete(recvar); delete(recval)
     delete(dtstarttime); delete(dtendtime); delete(summary)
