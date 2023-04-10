@@ -15,10 +15,12 @@ function to24(time12,
     bare_time = substr(time12, 1, length(time12) - RLENGTH)
     time24 = gensub(":", "", 1, bare_time) + 0
     ampm = ltrim(substr(time12, RSTART, RLENGTH))
-    if ( ampm == "pm") time24 += 1200
+    if      ( time12 ~ /^12:?00 ?pm$/) time24 = 1200  # edge case: noon
+    else if ( time12 ~ /^12:?00 ?am$/) time24 = 0000  # edge case: midnight
+    else if ( ampm == "pm")            time24 += 1200
 
-    # Add a leading zero and return the last 4.
-    time24 = "0" time24
+    # Add some leading zeroes and return the last 4.
+    time24 = "000" time24
     return(substr(time24, length(time24)-3, 4))
 }
 
