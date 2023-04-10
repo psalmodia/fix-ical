@@ -112,10 +112,10 @@ function process_summary(summary_orig, nr,
 /^END:VEVENT/ {
     # Print the VEVENT record.
 
-    # IF we have a SUMMARY in the VEVENT record (I believe we always
+    # If we have a SUMMARY in the VEVENT record (I believe we always
     # do), parse it and return how many DTSTART times it yields (from
-    # the text of SUMMARY). If there is more than 1 start time, the
-    # SUMMARY text read somehting like this:
+    # the text of SUMMARY). If there is more than one start time, the
+    # SUMMARY text might read something like this:
     # 8:45 am - Matins\n10:00 am - Holy Liturgy\nNo Sunday School
     num_dtstarttime = "SUMMARY" in recval ?
         process_summary(recval["SUMMARY"], recNR["SUMMARY"]) :
